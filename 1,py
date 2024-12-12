@@ -1,0 +1,64 @@
+def parse_input():
+    import sys
+    input = sys.stdin.read().splitlines()
+    
+    # Digits 0-9 in 3x3 matrices
+    digit_matrices = []
+    for i in range(3):
+        digit_matrices.append(input[i])
+    digit_matrices = ["".join(row[i:i+3] for row in digit_matrices) for i in range(0, 30, 3)]
+    
+    # Input number's 3x3 matrices
+    input_matrices = []
+    for i in range(3, 6):
+        input_matrices.append(input[i])
+    input_matrices = ["".join(row[i:i+3] for row in input_matrices) for i in range(0, len(input[3]), 3)]
+    
+    return digit_matrices, input_matrices
+
+def toggle_one_light(matrix):
+    toggled_variations = []
+    matrix = list(matrix)
+    for i in range(len(matrix)):
+        # Toggle the light
+        matrix[i] = '1' if matrix[i] == '0' else '0'
+        toggled_variations.append("".join(matrix))
+        # Revert the toggle
+        matrix[i] = '1' if matrix[i] == '0' else '0'
+    return toggled_variations
+
+def find_possible_numbers(digit_matrices, input_matrices):
+    possible_numbers = []
+    for input_matrix in input_matrices:
+        matching_digits = []
+        if input_matrix in digit_matrices:
+            matching_digits.append(digit_matrices.index(input_matrix))
+        else:
+            # Try toggling one light
+            toggled_variations = toggle_one_light(input_matrix)
+            for variation in toggled_variations:
+                if variation in digit_matrices:
+                    matching_digits.append(digit_matrices.index(variation))
+        
+        if not matching_digits:
+            return "Invalid"
+        
+        possible_numbers.append(matching_digits)
+    return possible_numbers
+
+def calculate_sum(possible_numbers):
+    from itertools import product
+    sum_numbers = 0
+    for combination in product(*possible_numbers):
+        sum_numbers += int("".join(map(str, combination)))
+    return sum_numbers
+
+# Main logic
+digit_matrices, input_matrices = parse_input()
+possible_numbers = find_possible_numbers(digit_matrices, input_matrices)
+
+if possible_numbers == "Invalid":
+    print("Invalid")
+else:
+    result = calculate_sum(possible_numbers)
+    print(result)
